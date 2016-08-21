@@ -41,6 +41,7 @@ Tests?
 
 Currently everything is tested manually: on Ubuntu and Amazon AMI.
 Only small part of tests are used only to check, if it compiles.
+[![Build Status](https://travis-ci.org/Auginte/go-monitoring.svg?branch=master)](https://travis-ci.org/Auginte/go-monitoring)
 
 Before committing please run `scripts/code-quality.sh`,
 so there will be less discussions "between tabs vs spaces"
