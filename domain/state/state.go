@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/Auginte/go-monitoring/domain/common"
 	"io"
 	"io/ioutil"
 	"net"
@@ -14,7 +15,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"github.com/Auginte/go-monitoring/domain/common"
 )
 
 func currentTime() string {

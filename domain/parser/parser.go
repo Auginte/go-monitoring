@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"fmt"
+	"github.com/Auginte/go-monitoring/domain/common"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,10 +13,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"github.com/Auginte/go-monitoring/domain/common"
 )
-
-
 
 func httpPost(urlPath, body string) string {
 	client := http.Client{}
