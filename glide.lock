@@ -1,13 +1,21 @@
-hash: 94e68443880d0619553e70b049c7d8c8093757fdc3787cbcfa6f5313d25ad4b6
-updated: 2016-08-21T21:22:22.663268497+03:00
+hash: 0594695618cb2c3672e08630c1ae4ae64a305e3162ee6c36a2bbab70d7b1b3b9
+updated: 2016-08-21T22:40:11.38598756+03:00
 imports:
 - name: github.com/Auginte/go-monitoring
-  version: 4d6d3023c42cc3c554dea25416f2607de11c7134
+  version: c1afd69ca40d58f7cbf713077230aa2a534c246c
   subpackages:
   - domain/parser
   - domain/state
   - domain/sync
   - domain/common
+- name: github.com/kr/fs
+  version: 2788f0dbd16903de03cb8186e5c7d97b69ad387b
+- name: github.com/pkg/errors
+  version: a22138067af1c4942683050411a841ade67fe1eb
+- name: github.com/pkg/sftp
+  version: a71e8f580e3b622ebff585309160b1cc549ef4d2
+- name: github.com/sfreiberg/simplessh
+  version: e2df5a8be6f36be66ed1af2e8767a354788e902b
 - name: golang.org/x/crypto
   version: b3cc7317554b3e708b116d997899e612bab100d6
   subpackages:

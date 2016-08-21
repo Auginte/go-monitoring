@@ -1,3 +1,6 @@
 package: github.com/Auginte/go-monitoring
 import:
-- package: golang.org/x/crypto/ssh
+- package: golang.org/x/crypto
+  subpackages:
+  - ssh
+- package: github.com/sfreiberg/simplessh

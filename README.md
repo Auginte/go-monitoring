@@ -52,3 +52,9 @@ Only small part of tests are used only to check, if it compiles.
 
 Before committing please run `scripts/code-quality.sh`,
 so there will be less discussions "between tabs vs spaces"
+
+Known issues
+------------
+
+`glide install` downloads packages of `github.com/Auginte/go-monitoring/` and those differ from not commited code.
+**Solution:** Remove `github.com/Auginte/go-monitoring/` from `vendor` folder. 

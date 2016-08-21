@@ -6,5 +6,5 @@ go:
 go_import_path: github.com/Auginte/go-monitoring
 
 install:
-  - go get golang.org/x/crypto/ssh
+  - go get github.com/sfreiberg/simplessh
   - go get github.com/golang/lint/golint
