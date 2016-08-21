@@ -12,6 +12,23 @@ Building with docker
  * Run `scripts/build.sh`
  * Check results in `bin` folder
  
+Using docker-compose
+--------------------
+
+```
+version: "2"
+
+services:
+  auginte.dev.gologs:
+    image: golang:1.7.0
+    volumes:
+      - ./:/go/src/github.com/Auginte/go-monitoring/
+      - ./bin:/go/bin
+    command: go install github.com/Auginte/go-monitoring/...
+```
+
+Assuming `docker-compose.yml` file is in current directory (otherwise updates `volumes` section)
+ 
 Developing with local go
 ------------------------
 
