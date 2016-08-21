@@ -9,6 +9,8 @@ Building with docker
 --------------------
 
  * Install [docker](https://docs.docker.com/engine/installation/)
+ * Install [glide](https://github.com/Masterminds/glide)
+ * Downlaod dependencies: `glide install`
  * Run `scripts/build.sh`
  * Check results in `bin` folder
  

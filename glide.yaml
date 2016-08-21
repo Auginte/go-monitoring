@@ -1,0 +1,3 @@
+package: github.com/Auginte/go-monitoring
+import:
+- package: gopkg.in/hypersleep/easyssh.v0

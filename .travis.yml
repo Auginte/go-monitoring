@@ -4,3 +4,7 @@ go:
   - 1.7
 
 go_import_path: github.com/Auginte/go-monitoring
+
+install:
+  - go get gopkg.in/hypersleep/easyssh.v0
+  - go get github.com/golang/lint/golint
