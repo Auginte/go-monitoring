@@ -12,33 +12,30 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"github.com/Auginte/go-monitoring/domain/common"
 )
 
-func logError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+
 
 func httpPost(urlPath, body string) string {
 	client := http.Client{}
 	request, err := http.NewRequest("POST", urlPath, bytes.NewBuffer([]byte(body)))
-	logError(err)
+	common.LogError(err)
 	response, err := client.Do(request)
-	logError(err)
+	common.LogError(err)
 	responseText, err := ioutil.ReadAll(response.Body)
-	logError(err)
+	common.LogError(err)
 	return string(responseText)
 }
 
 func httpPut(urlPath, body string) string {
 	client := http.Client{}
 	request, err := http.NewRequest("PUT", urlPath, bytes.NewBuffer([]byte(body)))
-	logError(err)
+	common.LogError(err)
 	response, err := client.Do(request)
-	logError(err)
+	common.LogError(err)
 	responseText, err := ioutil.ReadAll(response.Body)
-	logError(err)
+	common.LogError(err)
 	return string(responseText)
 }
 
@@ -47,7 +44,7 @@ func ReadMappings(prefix, container string) string {
 	path := prefix + "/" + container + "/config/log-mapping.json"
 	if _, err := os.Stat(path); err == nil {
 		mapping, err := ioutil.ReadFile(path)
-		logError(err)
+		common.LogError(err)
 		return string(mapping)
 	}
 	return ""
@@ -76,7 +73,7 @@ func StoreMapping(urlMapping, mapping string) {
 func StoreDataToES(urlStore, dataFile string) {
 	// Reading data
 	file, err := os.Open(dataFile)
-	logError(err)
+	common.LogError(err)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		// Storing data (using hash to not import same data)
@@ -88,19 +85,19 @@ func StoreDataToES(urlStore, dataFile string) {
 			log.Println("\tResponse: " + response)
 		}
 	}
-	logError(scanner.Err())
-	logError(file.Close())
+	common.LogError(scanner.Err())
+	common.LogError(file.Close())
 }
 
 // GetContainersToBeMonitored - returns [container_name => path]
 func GetContainersToBeMonitored(prefix string) map[string]string {
 	topDirectories, err := ioutil.ReadDir(prefix)
-	logError(err)
+	common.LogError(err)
 	monitoredContainers := map[string]string{}
 	for _, directory := range topDirectories {
 		if directory.IsDir() {
 			subDirs, err := ioutil.ReadDir(prefix + "/" + directory.Name())
-			logError(err)
+			common.LogError(err)
 			hasLogs := false
 			hasConfig := false
 			for _, subDir := range subDirs {
@@ -123,7 +120,7 @@ func GetContainersToBeMonitored(prefix string) map[string]string {
 func GetJSONLogFiles(path string) map[string]string {
 	fullPath := path + "/logs"
 	files, err := ioutil.ReadDir(fullPath)
-	logError(err)
+	common.LogError(err)
 	jsonFiles := map[string]string{}
 	date := time.Now().Format("2006.01.02")
 	for _, file := range files {

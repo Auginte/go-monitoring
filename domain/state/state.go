@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -15,13 +14,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"github.com/Auginte/go-monitoring/domain/common"
 )
-
-func logStateError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func currentTime() string {
 	return time.Now().Format(time.RFC3339Nano)
@@ -78,7 +72,7 @@ func parseProcStat(line string, data *procStat) {
 // GetProcStatJSON - data from /proc/stat
 func GetProcStatJSON() string {
 	file, err := os.Open("/proc/stat")
-	logStateError(err)
+	common.LogError(err)
 	scanner := bufio.NewScanner(file)
 	data := &procStat{}
 	data.Type = "proc.stat"
@@ -87,11 +81,11 @@ func GetProcStatJSON() string {
 		line := scanner.Text()
 		parseProcStat(line, data)
 	}
-	logStateError(scanner.Err())
-	logStateError(file.Close())
+	common.LogError(scanner.Err())
+	common.LogError(file.Close())
 
 	serialised, err := json.Marshal(data)
-	logStateError(err)
+	common.LogError(err)
 	return string(serialised)
 }
 
@@ -128,7 +122,7 @@ func parseProcMemInfo(line string, data *procMemInfo) {
 // GetProcMemInfoJSON - data from "/proc/meminfo"
 func GetProcMemInfoJSON() string {
 	file, err := os.Open("/proc/meminfo")
-	logStateError(err)
+	common.LogError(err)
 	scanner := bufio.NewScanner(file)
 	data := &procMemInfo{}
 	data.Type = "proc.meminfo"
@@ -137,11 +131,11 @@ func GetProcMemInfoJSON() string {
 		line := scanner.Text()
 		parseProcMemInfo(line, data)
 	}
-	logStateError(scanner.Err())
-	logStateError(file.Close())
+	common.LogError(scanner.Err())
+	common.LogError(file.Close())
 
 	serialised, err := json.Marshal(data)
-	logStateError(err)
+	common.LogError(err)
 	return string(serialised)
 }
 
@@ -178,7 +172,7 @@ func parseProcDiskStats(line string, data *procDiskStats) {
 // GetProcDiskStatsJSON - data from /proc/diskstats"
 func GetProcDiskStatsJSON() string {
 	file, err := os.Open("/proc/diskstats")
-	logStateError(err)
+	common.LogError(err)
 	scanner := bufio.NewScanner(file)
 	data := &procDiskStats{}
 	data.Type = "proc.diskstats"
@@ -187,12 +181,12 @@ func GetProcDiskStatsJSON() string {
 		line := scanner.Text()
 		parseProcDiskStats(line, data)
 	}
-	logStateError(scanner.Err())
-	logStateError(file.Close())
+	common.LogError(scanner.Err())
+	common.LogError(file.Close())
 
 	var stat syscall.Statfs_t
 	wd, err := os.Getwd()
-	logStateError(err)
+	common.LogError(err)
 	syscall.Statfs(wd, &stat)
 	data.SizeTotal = uint64(stat.Bsize) * stat.Blocks
 	data.SizeFree = uint64(stat.Bsize) * stat.Bavail
@@ -200,7 +194,7 @@ func GetProcDiskStatsJSON() string {
 	data.INodesFree = stat.Ffree
 
 	serialised, err := json.Marshal(data)
-	logStateError(err)
+	common.LogError(err)
 	return string(serialised)
 }
 
@@ -209,11 +203,11 @@ func GetProcDiskStatsJSON() string {
 // AppendData - store to file
 func AppendData(data, file string) {
 	f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-	logStateError(err)
+	common.LogError(err)
 	_, err = f.WriteString(data + "\n")
-	logStateError(err)
+	common.LogError(err)
 	err = f.Close()
-	logStateError(err)
+	common.LogError(err)
 }
 
 // Docker API
@@ -372,19 +366,19 @@ func connectToDocker(path string) io.ReadCloser {
 	}
 	client := &http.Client{Transport: tr}
 	resp, err := client.Get("http://127.0.0.1/" + path)
-	logStateError(err)
+	common.LogError(err)
 	return resp.Body
 }
 
 func parseDockerContainersJSON(reader io.ReadCloser) []aggregatedContainer {
 	// Reading data from Docker API
 	data, err := ioutil.ReadAll(reader)
-	logStateError(err)
+	common.LogError(err)
 
 	// Unmarshaling
 	result := []container{}
 	err = json.Unmarshal([]byte(data), &result)
-	logStateError(err)
+	common.LogError(err)
 
 	// Converting to stats structures
 	stats := []aggregatedContainer{}
@@ -408,11 +402,11 @@ func parseDockerContainersJSON(reader io.ReadCloser) []aggregatedContainer {
 func includeContainerInspect(container aggregatedContainer) aggregatedContainer {
 	reader := connectToDocker("containers/" + container.ContainerID + "/json")
 	rawJSON, err := ioutil.ReadAll(reader)
-	logStateError(err)
-	logStateError(reader.Close())
+	common.LogError(err)
+	common.LogError(reader.Close())
 	data := &inspectedContainer{}
 	err = json.Unmarshal(rawJSON, data)
-	logStateError(err)
+	common.LogError(err)
 	container.MainPid = data.State.Pid
 	container.Finished = data.State.FinishedAt
 	container.RestartCount = data.RestartCount
@@ -426,7 +420,7 @@ func includeContainerPids(container aggregatedContainer) aggregatedContainer {
 	lines := readLines(command, command2)
 	for _, line := range lines {
 		pid, err := strconv.ParseInt(line, 10, 0)
-		logStateError(err)
+		common.LogError(err)
 		container.Pids = append(container.Pids, int(pid))
 	}
 	return container
@@ -478,7 +472,7 @@ func includeContainerIOStats(container aggregatedContainer) aggregatedContainer 
 		parts := strings.SplitN(line, " ", 3)
 		if len(parts) == 3 {
 			value, err := strconv.ParseInt(parts[2], 10, 64)
-			logStateError(err)
+			common.LogError(err)
 			switch parts[1] {
 			case "Read":
 				container.ReadsCompleted += value
@@ -496,13 +490,13 @@ func readLines(command string, alternativeCommand string) []string {
 	if err != nil {
 		file, err = os.Open(alternativeCommand)
 	}
-	logStateError(err)
+	common.LogError(err)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		result = append(result, scanner.Text())
 	}
-	logStateError(scanner.Err())
-	logStateError(file.Close())
+	common.LogError(scanner.Err())
+	common.LogError(file.Close())
 	return result
 }
 
@@ -510,7 +504,7 @@ func includeContainerProcessStatuses(container aggregatedContainer) aggregatedCo
 	container.ProcessStatuses = ""
 	for _, pid := range container.Pids {
 		content, err := ioutil.ReadFile("/proc/" + strconv.Itoa(pid) + "/stat")
-		logStateError(err)
+		common.LogError(err)
 		parts := strings.SplitN(string(content), ") ", 2)
 		if len(parts) == 2 {
 			state := processState(parts[1][0])
@@ -554,7 +548,7 @@ func getDockerContainersJSON(elements []aggregatedContainer) string {
 	result := ""
 	for key, stat := range elements {
 		serialised, err := json.Marshal(stat)
-		logStateError(err)
+		common.LogError(err)
 		if key != 0 {
 			result = result + "\n"
 		}
@@ -567,7 +561,7 @@ func getDockerContainersJSON(elements []aggregatedContainer) string {
 func GetAllDockerStats() string {
 	reader := connectToDocker("containers/json")
 	containers := parseDockerContainersJSON(reader)
-	logStateError(reader.Close())
+	common.LogError(reader.Close())
 	for key, container := range containers {
 		container = includeContainerInspect(container)
 		container = includeContainerPids(container)
